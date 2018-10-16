@@ -33,8 +33,7 @@ def handle_abalone(column_names, filename):
     y = data.rings.values
     del data["rings"]
     X = data.values.astype(np.float)
-
-    sample_methods = ['random', 'smote', 'SMOTEBorderline-1', 'SMOTEBorderline-2', 'SVMSMOTE', 'adasyn']
+    sample_methods = ['random', 'SMOTE', 'SMOTEBorderline-1', 'SMOTEBorderline-2', 'SVMSMOTE', 'ADASYN']
     # sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
     for method in sample_methods:
         print("sample method:", method)
@@ -49,7 +48,7 @@ def oversample(x, y, method):
         # 随机过采样
         ros = RandomOverSampler(random_state=RANDOMSTATE)
         X_resampled, y_resampled = ros.fit_resample(x, y)
-    elif method == 'smote':
+    elif method == 'SMOTE':
         # SMOTE算法
         X_resampled, y_resampled = SMOTE(random_state=RANDOMSTATE).fit_resample(x, y)
     elif method == 'SMOTEBorderline-1':
@@ -61,7 +60,7 @@ def oversample(x, y, method):
     elif method == 'SVMSMOTE':
         # SVMSMOTE算法
         X_resampled, y_resampled = SVMSMOTE(random_state=RANDOMSTATE).fit_resample(x, y)
-    elif method == 'adasyn':
+    elif method == 'ADASYN':
         # ADASYN算法
         X_resampled, y_resampled = ADASYN(random_state=RANDOMSTATE).fit_resample(x, y)
     elif method == 'mwmote':
