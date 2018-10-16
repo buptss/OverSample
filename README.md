@@ -14,7 +14,7 @@ MWMOTE:http://pdfs.semanticscholar.org/c3c0/aaa9f961f0c81d664b0f9a030871de215b79
 
 BorderlineSMOTE: https://imbalanced-learn.readthedocs.io/en/stable/over_sampling.html#hwb2005
 
-
+SVMSMOTE：
 
 Random Oversample:
 
