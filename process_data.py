@@ -32,7 +32,8 @@ def handle_abalone(column_names, filename):
     y = data.rings.values
     del data["rings"]
     X = data.values.astype(np.float)
-    sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
+    sample_methods = ['random', 'smote', 'adasyn']
+    # sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
     for method in sample_methods:
         print("sample method:", method)
         X_resampled, y_resampled = oversample(X, y, method=method)
@@ -53,9 +54,9 @@ def oversample(x, y, method):
         X_resampled, y_resampled = ADASYN().fit_resample(x, y)
     elif method == 'mwmote':
         # MWMOTE算法
-        X_resampled, y_resampled = MWMOTE.MWMOTE(x, y, N=1000)
-    # from collections import Counter
-    # print(sorted(Counter(y_resampled).items()))
+        X_resampled, y_resampled = MWMOTE.MWMOTE(x, y, N=1000, return_mode='append')
+    from collections import Counter
+    print(sorted(Counter(y_resampled).items()))
     return X_resampled, y_resampled
 
 
