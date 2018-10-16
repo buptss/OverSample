@@ -2,21 +2,14 @@
 # encoding: utf-8
 
 from xgboost import XGBClassifier as xgb
-from xgboost import DMatrix
 import pandas as pd
 from imblearn.metrics import geometric_mean_score
-import csv
-import heapq
-import os
 import numpy as np
-from sklearn.metrics import recall_score, accuracy_score, precision_score
-from sklearn import metrics
+from sklearn.metrics import recall_score, precision_score, f1_score
 from sklearn.model_selection import train_test_split, cross_val_score, KFold
-from sklearn.externals import joblib
-# from settings import reason_dict, target_list, chunk_size, SHOW_FEATURE
 import warnings
-from imblearn.over_sampling import RandomOverSampler
-from imblearn.over_sampling import SMOTE, ADASYN
+from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
+import MWMOTE
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.filterwarnings(action='ignore', category=DeprecationWarning)
@@ -33,13 +26,17 @@ def handle_abalone(column_names, filename):
     for label in "MFI":
         data[label] = data["sex"] == label
     del data["sex"]
+    # 取9和18这两列
     data = data[(data["rings"] == 18) | (data["rings"] == 9)]
-
+    pos_label = 18
     y = data.rings.values
     del data["rings"]
     X = data.values.astype(np.float)
-    X_resampled, y_resampled = oversample(X, y, method='smote')
-    evaluate(X_resampled, y_resampled)
+    sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
+    for method in sample_methods:
+        print("sample method:", method)
+        X_resampled, y_resampled = oversample(X, y, method=method)
+        evaluate(X_resampled, y_resampled, pos_label)
     return
 
 
@@ -54,14 +51,16 @@ def oversample(x, y, method):
     elif method == 'adasyn':
         # ADASYN算法
         X_resampled, y_resampled = ADASYN().fit_resample(x, y)
-    from collections import Counter
-    print(sorted(Counter(y_resampled).items()))
+    elif method == 'mwmote':
+        # MWMOTE算法
+        X_resampled, y_resampled = MWMOTE.MWMOTE(x, y, N=1000)
+    # from collections import Counter
+    # print(sorted(Counter(y_resampled).items()))
     return X_resampled, y_resampled
 
 
-def evaluate(x, y):
+def evaluate(x, y, pos_label):
     train_X, test_X, train_y, test_y = train_test_split(x, y)  # splits 75%/25% by default
-
     # 配置模型
     gbm = xgb(max_depth=3, n_estimators=300, learning_rate=0.05)
     # train
@@ -69,11 +68,15 @@ def evaluate(x, y):
     # apply the model to the test and training data
     predicted_test_y = gbm.predict(test_X)
     # predicted_train_y = gbm.predict(train_X)
-    # metrics.recall_score()
-    print("recall rate:", metrics.recall_score(test_y, predicted_test_y, pos_label=18))
-    print("precision rate:", metrics.precision_score(test_y, predicted_test_y, pos_label=18))
-    print("f1 score:", metrics.f1_score(test_y, predicted_test_y,pos_label=18))
-    print("gmeans:", geometric_mean_score(test_y, predicted_test_y,pos_label=18))
+    # print("recall rate:", recall_score(test_y, predicted_test_y, pos_label=pos_label))
+    # print("precision rate:", precision_score(test_y, predicted_test_y, pos_label=pos_label))
+    # print("f1 score:", f1_score(test_y, predicted_test_y, pos_label=pos_label))
+    # print("gmeans:", geometric_mean_score(test_y, predicted_test_y, pos_label=pos_label))
+    print("recall rate/precision rate/f1 score/gmeans")
+    print(recall_score(test_y, predicted_test_y, pos_label=pos_label),
+          precision_score(test_y, predicted_test_y, pos_label=pos_label),
+          f1_score(test_y, predicted_test_y, pos_label=pos_label),
+          geometric_mean_score(test_y, predicted_test_y, pos_label=pos_label))
     return
 
 
