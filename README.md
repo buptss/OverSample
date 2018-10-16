@@ -19,10 +19,11 @@ SVMSMOTE：https://imbalanced-learn.readthedocs.io/en/stable/over_sampling.html#
 Random Oversample: 
 
 # Evaluation Principle
-Precision
+Precision: The precision is the ratio tp / (tp + fp) where tp is the number of true positives and fp the number of false positives. 
 
-Recall
+Recall: The recall is the ratio tp / (tp + fn) where tp is the number of true positives and fn the number of false negatives.
 
-G-mean
+G-mean: The geometric mean (G-mean) is the root of the product of class-wise sensitivity. 
+For binary classification G-mean is the squared root of the product of the sensitivity and specificity.
 
-F1-score
+F1-score: F1 = 2 * (precision * recall) / (precision + recall)
