@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.metrics import recall_score, precision_score, f1_score
 from sklearn.model_selection import train_test_split, cross_val_score, KFold
 import warnings
-from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
+from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN, BorderlineSMOTE
 import MWMOTE
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -32,7 +32,7 @@ def handle_abalone(column_names, filename):
     y = data.rings.values
     del data["rings"]
     X = data.values.astype(np.float)
-    sample_methods = ['random', 'smote', 'adasyn']
+    sample_methods = ['random', 'smote', 'adasyn', 'SMOTEBorderline-1', 'SMOTEBorderline-2']
     # sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
     for method in sample_methods:
         print("sample method:", method)
@@ -52,11 +52,18 @@ def oversample(x, y, method):
     elif method == 'adasyn':
         # ADASYN算法
         X_resampled, y_resampled = ADASYN().fit_resample(x, y)
+    elif method == 'SMOTEBorderline-1':
+        # BorderlineSmote算法 borderline-1
+        X_resampled, y_resampled = BorderlineSMOTE(kind='borderline-1').fit_resample(x, y)
+    elif method == 'SMOTEBorderline-2':
+        # BorderlineSmote算法 borderline-2
+        X_resampled, y_resampled = BorderlineSMOTE(kind='borderline-2').fit_resample(x, y)
     elif method == 'mwmote':
         # MWMOTE算法
         X_resampled, y_resampled = MWMOTE.MWMOTE(x, y, N=1000, return_mode='append')
-    from collections import Counter
-    print(sorted(Counter(y_resampled).items()))
+    # 统计过采样数量
+    # from collections import Counter
+    # print(sorted(Counter(y_resampled).items()))
     return X_resampled, y_resampled
 
 
