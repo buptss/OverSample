@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split, cross_val_score, KFold
 import warnings
 from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN, BorderlineSMOTE, SVMSMOTE
 import MWMOTE
+# from imblearn import pipeline as pl
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.filterwarnings(action='ignore', category=DeprecationWarning)
@@ -32,6 +33,7 @@ def handle_abalone(column_names, filename):
     y = data.rings.values
     del data["rings"]
     X = data.values.astype(np.float)
+
     sample_methods = ['random', 'smote', 'SMOTEBorderline-1', 'SMOTEBorderline-2', 'SVMSMOTE', 'adasyn']
     # sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
     for method in sample_methods:
@@ -42,26 +44,26 @@ def handle_abalone(column_names, filename):
 
 
 def oversample(x, y, method):
+    RANDOMSTATE=42
     if method == 'random':
         # 随机过采样
-        ros = RandomOverSampler(random_state=0)
+        ros = RandomOverSampler(random_state=RANDOMSTATE)
         X_resampled, y_resampled = ros.fit_resample(x, y)
     elif method == 'smote':
         # SMOTE算法
-        X_resampled, y_resampled = SMOTE().fit_resample(x, y)
+        X_resampled, y_resampled = SMOTE(random_state=RANDOMSTATE).fit_resample(x, y)
     elif method == 'SMOTEBorderline-1':
         # BorderlineSmote算法 borderline-1
-        X_resampled, y_resampled = BorderlineSMOTE(kind='borderline-1').fit_resample(x, y)
+        X_resampled, y_resampled = BorderlineSMOTE(kind='borderline-1', random_state=RANDOMSTATE).fit_resample(x, y)
     elif method == 'SMOTEBorderline-2':
         # BorderlineSmote算法 borderline-2
-        X_resampled, y_resampled = BorderlineSMOTE(kind='borderline-2').fit_resample(x, y)
+        X_resampled, y_resampled = BorderlineSMOTE(kind='borderline-2', random_state=RANDOMSTATE).fit_resample(x, y)
     elif method == 'SVMSMOTE':
         # SVMSMOTE算法
-        X_resampled, y_resampled = SVMSMOTE().fit_resample(x, y)
+        X_resampled, y_resampled = SVMSMOTE(random_state=RANDOMSTATE).fit_resample(x, y)
     elif method == 'adasyn':
         # ADASYN算法
-        X_resampled, y_resampled = ADASYN().fit_resample(x, y)
-
+        X_resampled, y_resampled = ADASYN(random_state=RANDOMSTATE).fit_resample(x, y)
     elif method == 'mwmote':
         # MWMOTE算法
         X_resampled, y_resampled = MWMOTE.MWMOTE(x, y, N=1000, return_mode='append')
