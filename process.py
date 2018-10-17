@@ -17,6 +17,7 @@ warnings.filterwarnings(action='ignore', category=DeprecationWarning)
 # from analysis import analyze_data_proportion, export_pr_auc
 chunk_size = 1000000
 SHOW_FEATURE = False
+from imblearn.datasets import fetch_datasets
 
 
 def handle_abalone(column_names, filename):
@@ -29,16 +30,22 @@ def handle_abalone(column_names, filename):
     del data["sex"]
     # 取9和18这两列
     data = data[(data["rings"] == 18) | (data["rings"] == 9)]
-    pos_label = 18
+
     y = data.rings.values
     del data["rings"]
     X = data.values.astype(np.float)
+    process(X, y)
+    return
+
+
+def process(X, y):
+    # pos_label = 18
     sample_methods = ['random', 'SMOTE', 'SMOTEBorderline-1', 'SMOTEBorderline-2', 'SVMSMOTE', 'ADASYN']
     # sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
     for method in sample_methods:
         print("sample method:", method)
         X_resampled, y_resampled = oversample(X, y, method=method)
-        evaluate(X_resampled, y_resampled, pos_label)
+        evaluate(X_resampled, y_resampled)
     return
 
 
@@ -72,7 +79,7 @@ def oversample(x, y, method):
     return X_resampled, y_resampled
 
 
-def evaluate(x, y, pos_label):
+def evaluate(x, y):
     train_X, test_X, train_y, test_y = train_test_split(x, y)  # splits 75%/25% by default
     # 配置模型
     gbm = xgb(max_depth=3, n_estimators=300, learning_rate=0.05)
@@ -83,16 +90,27 @@ def evaluate(x, y, pos_label):
     # predicted_train_y = gbm.predict(train_X)
 
     print("precision rate/recall rate/f1 score/G-means")
-    print(precision_score(test_y, predicted_test_y, pos_label=pos_label),
-          recall_score(test_y, predicted_test_y, pos_label=pos_label),
-          f1_score(test_y, predicted_test_y, pos_label=pos_label),
-          geometric_mean_score(test_y, predicted_test_y, pos_label=pos_label))
+    print(precision_score(test_y, predicted_test_y),
+          recall_score(test_y, predicted_test_y),
+          f1_score(test_y, predicted_test_y),
+          geometric_mean_score(test_y, predicted_test_y))
     return
 
 
 # 功能：主程序
 if __name__ == '__main__':
-    column_names = ["sex", "length", "diameter", "height", "whole weight", "shucked weight", "viscera weight",
-                    "shell weight", "rings"]
-    filename = "abalone.data"
-    handle_abalone(column_names, filename)
+    # column_names = ["sex", "length", "diameter", "height", "whole weight", "shucked weight", "viscera weight",
+    #                 "shell weight", "rings"]
+    # filename = "abalone.data"
+    names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
+             'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
+             'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
+             'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
+    for name in names:
+        print('\n\n')
+        print("Data Source Name:", name)
+        object = fetch_datasets(data_home='./data/')[name]
+        X, y = object.data, object.target
+        process(X, y)
+    # handle_abalone(column_names, filename)
+    # handle_abalone(column_names, filename)
