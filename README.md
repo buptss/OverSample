@@ -20,12 +20,15 @@ Random Oversample:
 
 # Evaluation Principle
 
-| 水果        | 价格    |  数量  |
-| --------   | -----:   | :----: |
-| 香蕉        | $1      |   5    |
-| 苹果        | $1      |   6    |
-| 草莓        | $1      |   7    |
+|         | Prediction     ||||
+| --------   | -----:   | :----: |:----:|:---:|
+|         | |Positive      |   Negative    |
+| Reality        | Positive      |   True Positive (TP)   | False Positive (FP)|Precision : TP/(TP+FP)
+|        | Negative      |   False Negative (FN)    | True Negative (TN)|
+|        | Recall TP/(TP+FN)      |   Specificity TN(FP+TN)    | F-value: $$\frac{1}{3}$$2\*recall\*precision/(recall+precision)|
+|   |   |   |G-mean:$$(recall x specificity)$$|
 --------------------- 
+http://chart.googleapis.com/chart?cht=tx&chl=\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a})
 
 Precision: The precision is the ratio tp / (tp + fp) where tp is the number of true positives and fp the number of false positives. 
 
