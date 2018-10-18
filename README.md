@@ -19,6 +19,14 @@ SVMSMOTE：https://www3.nd.edu/~dial/papers/SMCB09.pdf
 Random Oversample: 
 
 # Evaluation Principle
+
+| 水果        | 价格    |  数量  |
+| --------   | -----:   | :----: |
+| 香蕉        | $1      |   5    |
+| 苹果        | $1      |   6    |
+| 草莓        | $1      |   7    |
+--------------------- 
+
 Precision: The precision is the ratio tp / (tp + fp) where tp is the number of true positives and fp the number of false positives. 
 
 Recall: The recall is the ratio tp / (tp + fn) where tp is the number of true positives and fn the number of false negatives.

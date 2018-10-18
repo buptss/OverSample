@@ -43,9 +43,8 @@ def process(X, y):
     sample_methods = ['random', 'SMOTE', 'SMOTEBorderline-1', 'SMOTEBorderline-2', 'SVMSMOTE', 'ADASYN']
     # sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
     for method in sample_methods:
-        print("sample method:", method)
         X_resampled, y_resampled = oversample(X, y, method=method)
-        evaluate(X_resampled, y_resampled)
+        evaluate(X_resampled, y_resampled, method)
     return
 
 
@@ -79,7 +78,7 @@ def oversample(x, y, method):
     return X_resampled, y_resampled
 
 
-def evaluate(x, y):
+def evaluate(x, y, method):
     train_X, test_X, train_y, test_y = train_test_split(x, y)  # splits 75%/25% by default
     # 配置模型
     gbm = xgb(max_depth=3, n_estimators=300, learning_rate=0.05)
@@ -89,11 +88,16 @@ def evaluate(x, y):
     predicted_test_y = gbm.predict(test_X)
     # predicted_train_y = gbm.predict(train_X)
 
-    print("precision rate/recall rate/f1 score/G-means")
-    print(precision_score(test_y, predicted_test_y),
-          recall_score(test_y, predicted_test_y),
-          f1_score(test_y, predicted_test_y),
-          geometric_mean_score(test_y, predicted_test_y))
+    # print("precision rate/recall rate/f1 score/G-means")
+    precision = precision_score(test_y, predicted_test_y)
+    recall = recall_score(test_y, predicted_test_y)
+    f1 = f1_score(test_y, predicted_test_y)
+    gmean = geometric_mean_score(test_y, predicted_test_y)
+    print("&"+method+"&"+"%.3f" % precision + "&" +
+          "%.3f" % recall + "&" +
+          "%.3f" % f1 + "&" +
+          "%.3f" % gmean + r"\\")
+
     return
 
 
@@ -102,15 +106,20 @@ if __name__ == '__main__':
     # column_names = ["sex", "length", "diameter", "height", "whole weight", "shucked weight", "viscera weight",
     #                 "shell weight", "rings"]
     # filename = "abalone.data"
-    names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
-             'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
-             'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
+    # names = ['ecoli', 'optical_digits']
+    # names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
+    #          'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
+    #          'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
+    #          'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
+    # names = ['arrhythmia']
+    names = ['solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
              'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
     for name in names:
-        print('\n\n')
-        print("Data Source Name:", name)
+        # print('\n\n')
+        print(r"\multirow{6}{*}{\textbf{"+name+"}}")
         object = fetch_datasets(data_home='./data/')[name]
         X, y = object.data, object.target
         process(X, y)
+        print("\hline")
     # handle_abalone(column_names, filename)
     # handle_abalone(column_names, filename)
