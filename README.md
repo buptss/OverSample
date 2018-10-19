@@ -1,3 +1,4 @@
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
 # OverSample
 Informed OverSample Method for Imbalanced Dataset
 
@@ -23,12 +24,11 @@ Random Oversample:
 |         | Prediction     ||||
 | --------   | -----:   | :----: |:----:|:---:|
 |         | |Positive      |   Negative    |
-| Reality        | Positive      |   True Positive (TP)   | False Positive (FP)|Precision : TP/(TP+FP)
+| Reality        | Positive      |   True Positive (TP)   | False Positive (FP)|Precision: <img src="http://latex.codecogs.com/gif.latex?\frac{TP}{TP+FP}"/>
 |        | Negative      |   False Negative (FN)    | True Negative (TN)|
-|        | Recall TP/(TP+FN)      |   Specificity TN(FP+TN)    | F-value: $$\frac{1}{3}$$2\*recall\*precision/(recall+precision)|
-|   |   |   |G-mean:$$(recall x specificity)$$|
+|        | Recall: <img src="http://latex.codecogs.com/gif.latex?\frac{TP}{TP+FN}"/>      |   Specificity: <img src="http://latex.codecogs.com/gif.latex?\frac{TN}{FP+TN}"/>   | F-value: <img src="http://latex.codecogs.com/gif.latex?\frac{2*recall*precision}{recall+precision}"/>|
+|   |   |   |G-mean:<img src="http://latex.codecogs.com/gif.latex?\sqrt{recall * specificity}"/>|
 --------------------- 
-<img src="http://www.forkosh.com/mathtex.cgi? \Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}">
 
 Precision: The precision is the ratio tp / (tp + fp) where tp is the number of true positives and fp the number of false positives. 
 
