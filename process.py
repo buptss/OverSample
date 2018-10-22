@@ -10,6 +10,8 @@ from sklearn.model_selection import train_test_split, cross_val_score, KFold
 import warnings
 from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN, BorderlineSMOTE, SVMSMOTE
 import MWMOTE
+from datetime import datetime
+from imblearn.datasets import fetch_datasets
 # from imblearn import pipeline as pl
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -17,7 +19,8 @@ warnings.filterwarnings(action='ignore', category=DeprecationWarning)
 # from analysis import analyze_data_proportion, export_pr_auc
 chunk_size = 1000000
 SHOW_FEATURE = False
-from imblearn.datasets import fetch_datasets
+SHOW_METRICS = False
+SHOW_DURATION_TIME = True
 
 
 # handle each data set
@@ -27,43 +30,51 @@ def process(X, y):
     # init sample method
     sample_methods = ['random', 'SMOTE', 'SMOTEBorderline-1', 'SMOTEBorderline-2', 'SVMSMOTE', 'ADASYN', 'No Sample']
     # sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
-    dict = {}
+    metrics_dict = {}
+    time_info = {}
     for sample_method in sample_methods:
+        # before
+        before_time = datetime.now()
         # over sample
         X_resampled, y_resampled = oversample(train_X, train_y, method=sample_method)
+        # after
+        over_time = datetime.now()
+        process_time = (over_time - before_time).seconds
+        time_info[sample_method] = process_time
         # create model
         gbm = xgb(max_depth=3, n_estimators=300, learning_rate=0.05)
         # train model
         gbm.fit(X_resampled, y_resampled)
         # evaluate on test set
         precision, recall, f1, gmean = evaluate(test_X, test_y, sample_method, gbm)
-        dict[sample_method] = {"precision": precision, "recall": recall, "f1": f1, "gmean": gmean}
-    df = pd.DataFrame(dict)
+        metrics_dict[sample_method] = {"precision": precision, "recall": recall, "f1": f1, "gmean": gmean}
+    df = pd.DataFrame(metrics_dict)
     # df.set_index(['precision', 'recall', 'gmean', 'f1'], inplace=True)
     df = df.T
     # print(df)
-    for index, row in df.iterrows():
-        print "&"+index+"&",
-        # output precision
-        if row["precision"]>=df["precision"].max():
-            print r"\textbf{%.3f" % row["precision"] + "}&",
-        else:
-            print "%.3f" % row["precision"] + "&",
+    if SHOW_METRICS:
+        for index, row in df.iterrows():
+            print "&"+index+"&",
+            # output precision
+            if row["precision"] >= df["precision"].max():
+                print r"\textbf{%.3f" % row["precision"] + "}&",
+            else:
+                print "%.3f" % row["precision"] + "&",
 
-        if row["recall"]>=df["recall"].max():
-            print r"\textbf{%.3f" % row["recall"] + "}&",
-        else:
-            print "%.3f" % row["recall"] + "&",
-        if row["f1"]>=df["f1"].max():
-            print r"\textbf{%.3f" % row["f1"] + "}&",
-        else:
-            print "%.3f" % row["f1"] + "&",
-        if row["gmean"]>=df["gmean"].max():
-            print(r"\textbf{%.3f" % row["gmean"] + r"}\\")
-        else:
-            print("%.3f" % row["gmean"] + r"\\")
+            if row["recall"] >= df["recall"].max():
+                print r"\textbf{%.3f" % row["recall"] + "}&",
+            else:
+                print "%.3f" % row["recall"] + "&",
+            if row["f1"] >= df["f1"].max():
+                print r"\textbf{%.3f" % row["f1"] + "}&",
+            else:
+                print "%.3f" % row["f1"] + "&",
+            if row["gmean"] >= df["gmean"].max():
+                print(r"\textbf{%.3f" % row["gmean"] + r"}\\")
+            else:
+                print("%.3f" % row["gmean"] + r"\\")
     # evaluate(X, y, "No Sample", gbm)
-    return
+    return time_info
 
 
 # involved collected over sample methods
@@ -119,11 +130,12 @@ if __name__ == '__main__':
     # column_names = ["sex", "length", "diameter", "height", "whole weight", "shucked weight", "viscera weight",
     #                 "shell weight", "rings"]
     # filename = "abalone.data"
-    # names = ['ecoli']
-    names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
-             'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
-             'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
-             'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
+    names = ['ecoli']
+    # names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
+    #          'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
+    #          'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
+    #          'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
+    time_dict = {}
     for name in names:
         # print('\n\n')
         print(r"\multirow{6}{*}{\textbf{"+name+"}}")
@@ -135,7 +147,10 @@ if __name__ == '__main__':
         # print(np.sum(X == 0))
         # print(X.size)
         # print(name,"%.4f" % (np.sum(X == 0)*1.0/X.size))
-        process(X, y)
+        time_info = process(X, y)
+        time_dict[name] = time_info
         print("\hline")
+    time_df = pd.DataFrame(time_dict)
+    print(time_df)
     # handle_abalone(column_names, filename)
     # handle_abalone(column_names, filename)

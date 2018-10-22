@@ -1,4 +1,4 @@
-# Sparsity Aware Method for Imbalanced Dataset
+# Sparsity Aware Algorithm for Extremely Imbalanced Classification
 Sparsity Aware Method for Imbalanced Dataset
 
 # Dataset
