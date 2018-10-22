@@ -1,4 +1,4 @@
-# OverSample
+# Sparsity Aware Method for Imbalanced Dataset
 Sparsity Aware Method for Imbalanced Dataset
 
 # Dataset
@@ -27,7 +27,7 @@ Ding, Zejin, "Diversified Ensemble Classifiers for Highly Imbalanced Data Learni
 |15|	coil_2000|	KDD, CoIL, target: minority|	16:1|	9,822|	85|0.5558|
 |16|	arrhythmia|	UCI, target: 06|	17:1|	452|	278|0.5352|
 |17|	solar_flare_m0|	UCI, target: M->0|	19:1|	1,389|	32|0.6875|
-|18|	oil	UCI, target: minority|	22:1|	937|	49|0.0758|
+|18|	oil| UCI, target: minority|	22:1|	937|	49|0.0758|
 |19|	car_eval_4|	UCI, target: vgood|	26:1|	1,728|	21|0.7143|
 |20|	wine_quality|	UCI, wine, target: <=4|	26:1|	4,898|	11|0.0004|
 |21|	letter_img|	UCI, target: Z|	26:1|	20,000|	16|0.0262|
@@ -73,3 +73,6 @@ G-mean: The geometric mean (G-mean) is the root of the product of class-wise sen
 For binary classification G-mean is the squared root of the product of the sensitivity and specificity.
 
 F1-score: F1 = 2 * (precision * recall) / (precision + recall)
+
+# Classfication Result
+https://github.com/buptss/OverSample/blob/master/classification%20result.pdf
