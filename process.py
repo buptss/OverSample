@@ -80,6 +80,7 @@ def oversample(x, y, method):
 
 def evaluate(x, y, method):
     train_X, test_X, train_y, test_y = train_test_split(x, y)  # splits 75%/25% by default
+    # train_test_split()
     # 配置模型
     gbm = xgb(max_depth=3, n_estimators=300, learning_rate=0.05)
     # train
@@ -107,19 +108,25 @@ if __name__ == '__main__':
     #                 "shell weight", "rings"]
     # filename = "abalone.data"
     # names = ['ecoli', 'optical_digits']
-    # names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
-    #          'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
-    #          'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
-    #          'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
-    # names = ['arrhythmia']
-    names = ['solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
+    names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
+             'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
+             'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
              'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
+    # names = ['arrhythmia']
+    # names = ['solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
+    #          'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
     for name in names:
         # print('\n\n')
-        print(r"\multirow{6}{*}{\textbf{"+name+"}}")
+        # print(r"\multirow{6}{*}{\textbf{"+name+"}}")
         object = fetch_datasets(data_home='./data/')[name]
         X, y = object.data, object.target
-        process(X, y)
-        print("\hline")
+        # print(np.isnan(X).any())
+        if np.isnan(X).any():
+            print("True")
+        # print(np.sum(X == 0))
+        # print(X.size)
+        print(name,"%.4f" % (np.sum(X == 0)*1.0/X.size))
+        # process(X, y)
+        # print("\hline")
     # handle_abalone(column_names, filename)
     # handle_abalone(column_names, filename)
