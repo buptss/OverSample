@@ -20,28 +20,11 @@ SHOW_FEATURE = False
 from imblearn.datasets import fetch_datasets
 
 
-def handle_abalone(column_names, filename):
-    # 删除此前入库文件
-    # os.system("rm -rf ./data/explain.csv")
-    directory = "./data/abalone/"
-    data = pd.read_csv(directory+filename, names=column_names)
-    for label in "MFI":
-        data[label] = data["sex"] == label
-    del data["sex"]
-    # 取9和18这两列
-    data = data[(data["rings"] == 18) | (data["rings"] == 9)]
-
-    y = data.rings.values
-    del data["rings"]
-    X = data.values.astype(np.float)
-    process(X, y)
-    return
-
-
+# handle each data set
 def process(X, y):
     # data split
     train_X, test_X, train_y, test_y = train_test_split(X, y)  # splits 75%/25% by default
-    # configure sample method
+    # init sample method
     sample_methods = ['random', 'SMOTE', 'SMOTEBorderline-1', 'SMOTEBorderline-2', 'SVMSMOTE', 'ADASYN', 'No Sample']
     # sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
     dict = {}
@@ -83,6 +66,7 @@ def process(X, y):
     return
 
 
+# involved collected over sample methods
 def oversample(x, y, method):
     randomstate = 42
     if method == 'No Sample':
@@ -116,7 +100,8 @@ def oversample(x, y, method):
     return X_resampled, y_resampled
 
 
-def evaluate(test_X, test_y, sample_method, model):
+# function: evaluate the oversample effects on the test set
+def evaluate(test_X, test_y, model):
     # apply the model to the test and training data
     predicted_test_y = model.predict(test_X)
     # predicted_train_y = gbm.predict(train_X)
@@ -126,11 +111,6 @@ def evaluate(test_X, test_y, sample_method, model):
     recall = recall_score(test_y, predicted_test_y)
     f1 = f1_score(test_y, predicted_test_y)
     gmean = geometric_mean_score(test_y, predicted_test_y)
-    # print("&"+sample_method+"&"+"%.3f" % precision + "&" +
-    #       "%.3f" % recall + "&" +
-    #       "%.3f" % f1 + "&" +
-    #       "%.3f" % gmean + r"\\")
-
     return precision, recall, f1, gmean
 
 
