@@ -139,14 +139,11 @@ if __name__ == '__main__':
     # column_names = ["sex", "length", "diameter", "height", "whole weight", "shucked weight", "viscera weight",
     #                 "shell weight", "rings"]
     # filename = "abalone.data"
-    names = ['ecoli']
-    # names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
-    #          'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
-    #          'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
-    #          'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
-    # names = ['arrhythmia']
-    # names = ['solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
-    #          'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
+    # names = ['ecoli']
+    names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
+             'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
+             'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
+             'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
     for name in names:
         # print('\n\n')
         print(r"\multirow{6}{*}{\textbf{"+name+"}}")
