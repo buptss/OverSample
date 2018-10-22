@@ -39,14 +39,15 @@ def process(X, y):
         X_resampled, y_resampled = oversample(train_X, train_y, method=sample_method)
         # after
         over_time = datetime.now()
-        process_time = (over_time - before_time).seconds
-        time_info[sample_method] = process_time
+        process_time = ((over_time - before_time).microseconds) *1.0/(10**6)
+        # print(process_time)
+        time_info[sample_method] = "%.3f" % process_time
         # create model
         gbm = xgb(max_depth=3, n_estimators=300, learning_rate=0.05)
         # train model
         gbm.fit(X_resampled, y_resampled)
         # evaluate on test set
-        precision, recall, f1, gmean = evaluate(test_X, test_y, sample_method, gbm)
+        precision, recall, f1, gmean = evaluate(test_X, test_y, gbm)
         metrics_dict[sample_method] = {"precision": precision, "recall": recall, "f1": f1, "gmean": gmean}
     df = pd.DataFrame(metrics_dict)
     # df.set_index(['precision', 'recall', 'gmean', 'f1'], inplace=True)
@@ -130,27 +131,38 @@ if __name__ == '__main__':
     # column_names = ["sex", "length", "diameter", "height", "whole weight", "shucked weight", "viscera weight",
     #                 "shell weight", "rings"]
     # filename = "abalone.data"
-    names = ['ecoli']
-    # names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
-    #          'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
-    #          'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
-    #          'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
+    # names = ['optical_digits']
+    # names = ['ecoli', 'optical_digits']
+    names = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
+             'car_eval_34', 'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick', 'coil_2000',
+             'arrhythmia', 'solar_flare_m0', 'oil', 'car_eval_4', 'wine_quality', 'letter_img', 'yeast_me2',
+             'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
     time_dict = {}
     for name in names:
         # print('\n\n')
-        print(r"\multirow{6}{*}{\textbf{"+name+"}}")
+        if SHOW_METRICS:
+            print(r"\multirow{6}{*}{\textbf{"+name+"}}")
         object = fetch_datasets(data_home='./data/')[name]
         X, y = object.data, object.target
         # print(np.isnan(X).any())
-        if np.isnan(X).any():
-            print("True")
         # print(np.sum(X == 0))
         # print(X.size)
         # print(name,"%.4f" % (np.sum(X == 0)*1.0/X.size))
         time_info = process(X, y)
         time_dict[name] = time_info
-        print("\hline")
+        if SHOW_METRICS:
+            print("\hline")
     time_df = pd.DataFrame(time_dict)
-    print(time_df)
+    time_df = time_df.T
+    if SHOW_DURATION_TIME:
+        for index, row in time_df.iterrows():
+            print index+"&"+row["random"],
+            print "&"+row["SMOTE"],
+            print "&" + row["SMOTEBorderline-1"],
+            print "&" + row["SMOTEBorderline-2"],
+            print "&" + row["SVMSMOTE"],
+            print "&" + row["ADASYN"] + r"\\"
+            print("\hline")
+
     # handle_abalone(column_names, filename)
     # handle_abalone(column_names, filename)
