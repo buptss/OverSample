@@ -8,7 +8,7 @@ UC Irvine Machine Learning Repository, http://archive.ics.uci.edu/ml/, 2009.
 Zendo Dataset:
 Ding, Zejin, "Diversified Ensemble Classifiers for Highly Imbalanced Data Learning and their Application in Bioinformatics." Dissertation, Georgia State University, (2011).
 
-The sparsity ratio is obtained by dividing the number of zeros in the data set 
+The sparsity ratio is obtained through dividing the number of zeros in the data set 
 by the number of dataset features.
 In this way, the datasets can be divided into two aspects:
 
