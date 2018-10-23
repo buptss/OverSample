@@ -190,4 +190,58 @@
 &SMOTEBorderline-2& 0.853& 0.848& 0.851& 0.918\\
 &SVMSMOTE& 0.848& 0.990& 0.914& 0.991\\
 &random& 0.764& \textbf{1.000}& 0.867& \textbf{0.994}\\
-\
+\hline
+\multirow{6}{*}{\textbf{yeast_me2}}
+&ADASYN& 0.250& 0.625& 0.357& 0.774\\
+&No Sample& \textbf{0.667}& 0.250& 0.364& 0.499\\
+&SMOTE& 0.235& 0.500& 0.320& 0.694\\
+&SMOTEBorderline-1& 0.333& \textbf{0.750}& \textbf{0.462}& \textbf{0.852}\\
+&SMOTEBorderline-2& 0.214& \textbf{0.750}& 0.333& 0.839\\
+&SVMSMOTE& 0.333& 0.625& 0.435& 0.780\\
+&random& 0.278& 0.625& 0.385& 0.776\\
+\hline
+\multirow{6}{*}{\textbf{webpage}}
+&ADASYN& 0.367& 0.598& 0.455& 0.761\\
+&No Sample& \textbf{0.929}& 0.512& \textbf{0.660}& 0.715\\
+&SMOTE& 0.494& 0.626& 0.552& 0.784\\
+&SMOTEBorderline-1& 0.362& 0.606& 0.454& 0.766\\
+&SMOTEBorderline-2& 0.456& 0.575& 0.509& 0.750\\
+&SVMSMOTE& 0.481& 0.689& 0.566& 0.821\\
+&random& 0.413& \textbf{0.843}& 0.554& \textbf{0.901}\\
+\hline
+\multirow{6}{*}{\textbf{ozone_level}}
+&ADASYN& 0.407& 0.407& 0.407& 0.630\\
+&No Sample& 0.500& 0.037& 0.069& 0.192\\
+&SMOTE& 0.481& \textbf{0.481}& \textbf{0.481}& \textbf{0.686}\\
+&SMOTEBorderline-1& 0.500& 0.259& 0.341& 0.506\\
+&SMOTEBorderline-2& 0.333& 0.222& 0.267& 0.467\\
+&SVMSMOTE& 0.455& 0.185& 0.263& 0.428\\
+&random& \textbf{0.571}& 0.296& 0.390& 0.542\\
+\hline
+\multirow{6}{*}{\textbf{mammography}}
+&ADASYN& 0.410& \textbf{0.797}& 0.542& \textbf{0.880}\\
+&No Sample& \textbf{0.861}& 0.449& 0.590& 0.670\\
+&SMOTE& 0.495& 0.739& 0.593& 0.851\\
+&SMOTEBorderline-1& 0.580& 0.681& 0.627& 0.820\\
+&SMOTEBorderline-2& 0.289& 0.667& 0.404& 0.799\\
+&SVMSMOTE& 0.562& 0.725& \textbf{0.633}& 0.845\\
+&random& 0.478& 0.783& 0.593& 0.875\\
+\hline
+\multirow{6}{*}{\textbf{protein_homo}}
+&ADASYN& 0.317& \textbf{0.936}& 0.473& \textbf{0.958}\\
+&No Sample& \textbf{0.944}& 0.738& \textbf{0.828}& 0.859\\
+&SMOTE& 0.388& 0.913& 0.545& 0.949\\
+&SMOTEBorderline-1& 0.579& 0.854& 0.690& 0.922\\
+&SMOTEBorderline-2& 0.360& 0.866& 0.509& 0.924\\
+&SVMSMOTE& 0.629& 0.845& 0.721& 0.917\\
+&random& 0.442& 0.927& 0.599& 0.958\\
+\hline
+\multirow{6}{*}{\textbf{abalone_19}}
+&ADASYN& 0.060& 0.333& 0.102& 0.564\\
+&No Sample& 0.000& 0.000& 0.000& 0.000\\
+&SMOTE& \textbf{0.098}& \textbf{0.556}& \textbf{0.167}& \textbf{0.729}\\
+&SMOTEBorderline-1& 0.000& 0.000& 0.000& 0.000\\
+&SMOTEBorderline-2& 0.000& 0.000& 0.000& 0.000\\
+&SVMSMOTE& 0.000& 0.000& 0.000& 0.000\\
+&random& 0.091& 0.222& 0.129& 0.467\\
+\hline
