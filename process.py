@@ -17,11 +17,12 @@ else:
     from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN, BorderlineSMOTE, SVMSMOTE
 
 import numpy as np
-from sklearn.metrics import recall_score, precision_score, f1_score, roc_auc_score, average_precision_score
+from sklearn.metrics import roc_curve, auc, recall_score, precision_score, f1_score, roc_auc_score, average_precision_score
 from sklearn.model_selection import train_test_split, cross_val_score, KFold
 import warnings
 import MWMOTE
 from datetime import datetime
+import matplotlib.pyplot as plt
 import random
 # from imblearn import pipeline as pl
 
@@ -32,6 +33,27 @@ chunk_size = 1000000
 SHOW_FEATURE = False
 SHOW_METRICS = True
 SHOW_DURATION_TIME = False
+SHOW_AUC_ROC_PLOT = False
+
+
+def statistics_sample_num(train_X, train_y, X_resampled, y_resampled, sample_method):
+    # print the number of sample before and after oversample operation
+    before_major = train_X[train_y == -1]
+    before_minor = train_X[train_y == 1]
+    after_major = X_resampled[y_resampled == -1]
+    after_minor = X_resampled[y_resampled == 1]
+    print(sample_method)
+    print("before operation major non-zero num:" + str(len(before_major[before_major != 0])))
+    print("before operation minor non-zero num:" + str(len(before_minor[before_minor != 0])))
+    print("after operation major non-zero num:" + str(len(after_major[after_major != 0])))
+    print("after operation minor non-zero num:" + str(len(after_minor[after_minor != 0])))
+    print
+
+    # print("before operation num:" + str(len(train_y)) + " major:" + str(len(train_y[train_y == -1]))
+    #       + "minor:" + str(len(train_y[train_y == 1])))
+    # print(" after oversample num:" + str(len(y_resampled)) + " major:" + str(len(y_resampled[y_resampled == -1]))
+    #       + "minor:" + str(len(y_resampled[y_resampled == 1])))
+    return
 
 
 # handle each data set
@@ -50,17 +72,22 @@ def process(X, y):
         before_time = datetime.now()
         # over sample
         X_resampled, y_resampled = oversample(train_X, train_y, method=sample_method)
+        # statistics_sample_num(train_X, train_y, X_resampled, y_resampled, sample_method)
         # after
         over_time = datetime.now()
         process_time = ((over_time - before_time).microseconds) *1.0/(10**6)
         # print(process_time)
         time_info[sample_method] = "%.3f" % process_time
         # create model
-        gbm = xgb(max_depth=3, n_estimators=300, learning_rate=0.05)
+        gbm = xgb(max_depth=3, n_estimators=300, learning_rate=0.01)
         # train model
         gbm.fit(X_resampled, y_resampled)
         # evaluate on test set
-        precision, recall, f1, gmean, auc_roc, auc_pr = evaluate(test_X, test_y, gbm)
+        precision, recall, f1, gmean, auc_roc, auc_pr, fpr, tpr = evaluate(test_X, test_y, gbm)
+        roc_auc = auc(fpr, tpr)
+        if SHOW_AUC_ROC_PLOT:
+            plt.plot(fpr, tpr, lw=1, alpha=0.3,
+                     label='%s (AUC = %0.2f)' % (sample_method,roc_auc))
         metrics_dict[sample_method] = {"precision": precision, "recall": recall, "f1": f1,
                                        "gmean": gmean, "auc_roc": auc_roc, "auc_pr": auc_pr}
     df = pd.DataFrame(metrics_dict)
@@ -150,7 +177,9 @@ def evaluate(test_X, test_y, model):
     gmean = geometric_mean_score(test_y, predicted_test_y)
     auc_roc = roc_auc_score(test_y, predicted_test_y)
     auc_pr = average_precision_score(test_y, predicted_test_y)
-    return precision, recall, f1, gmean, auc_roc, auc_pr
+    fpr, tpr, thresholds = roc_curve(test_y, predicted_test_y)
+
+    return precision, recall, f1, gmean, auc_roc, auc_pr, fpr, tpr
 
 
 def calc_sparsity_ratio(X):
@@ -169,15 +198,15 @@ if __name__ == '__main__':
     # names = ['optical_digits']
     # names = ['ecoli', 'optical_digits']
     # test dataset
-    datasets = ['coil_2000']
+    # datasets = ['solar_flare_m0']
     # sparsity ratio >= 0.5
     # datasets = ["car_eval_34", "coil_2000", 'arrhythmia', 'solar_flare_m0','car_eval_4', 'webpage']
 
     # sparsity ratio < 0.5
-    # datasets = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
-    #             'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick',
-    #             'oil', 'wine_quality', 'letter_img', 'yeast_me2',
-    #             'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
+    datasets = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
+                'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick',
+                'oil', 'wine_quality', 'letter_img', 'yeast_me2',
+                'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
 
     # all
     # datasets = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
@@ -186,6 +215,8 @@ if __name__ == '__main__':
     #          'webpage', 'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
     time_dict = {}
     for dataset in datasets:
+        if SHOW_AUC_ROC_PLOT:
+            plt.cla()
         if SHOW_METRICS:
             print(r"\multirow{6}{*}{\textbf{"+dataset+"}}")
         object = fetch_datasets(data_home='./data/')[dataset]
@@ -194,6 +225,13 @@ if __name__ == '__main__':
         time_dict[dataset] = time_info
         if SHOW_METRICS:
             print("\hline")
+        if SHOW_AUC_ROC_PLOT:
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('dataset:' + datasets[0])
+            plt.legend(loc="lower right")
+            plt.grid()
+            plt.savefig(dataset + ".pdf")
     time_df = pd.DataFrame(time_dict)
     time_df = time_df.T
     if SHOW_DURATION_TIME:
