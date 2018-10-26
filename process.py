@@ -9,7 +9,7 @@ if IS_LOCAL:
     # import sys
     # sys.path.append("..")
     from imbalancedlearn.imblearn.metrics import geometric_mean_score
-    from imbalancedlearn.imblearn.datasets import fetch_datasets
+    # from imbalancedlearn.imblearn.datasets import fetch_datasets
     from imbalancedlearn.imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN, BorderlineSMOTE, SVMSMOTE, SparseSMOTE
 else:
     from imblearn.metrics import geometric_mean_score
@@ -29,6 +29,9 @@ import random
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.filterwarnings(action='ignore', category=DeprecationWarning)
 # from analysis import analyze_data_proportion, export_pr_auc
+
+# control block
+sampling_strategy = 0.5
 chunk_size = 1000000
 SHOW_FEATURE = False
 SHOW_METRICS = True
@@ -49,17 +52,16 @@ def statistics_sample_num(train_X, train_y, X_resampled, y_resampled, sample_met
     print("after operation minor non-zero num:" + str(len(after_minor[after_minor != 0])))
     print
 
-    # print("before operation num:" + str(len(train_y)) + " major:" + str(len(train_y[train_y == -1]))
-    #       + "minor:" + str(len(train_y[train_y == 1])))
-    # print(" after oversample num:" + str(len(y_resampled)) + " major:" + str(len(y_resampled[y_resampled == -1]))
-    #       + "minor:" + str(len(y_resampled[y_resampled == 1])))
+    print("before operation num:" + str(len(train_y)) + " major:" + str(len(train_y[train_y == -1]))
+          + "minor:" + str(len(train_y[train_y == 1])))
+    print(" after oversample num:" + str(len(y_resampled)) + " major:" + str(len(y_resampled[y_resampled == -1]))
+          + "minor:" + str(len(y_resampled[y_resampled == 1])))
     return
 
 
 # handle each data set
-def process(X, y):
-    # data split
-    train_X, test_X, train_y, test_y = train_test_split(X, y)  # splits 75%/25% by default
+def process(object):
+    train_X, train_y, test_X, test_y = object['train_X'], object['train_y'], object['test_X'], object['test_y']
     # init sample method
     sample_methods = ['random', 'SMOTE', 'Sparse SMOTE', 'SMOTEBorderline-1', 'SMOTEBorderline-2',
                       'SVMSMOTE', 'ADASYN', 'No Sample']
@@ -80,8 +82,9 @@ def process(X, y):
         time_info[sample_method] = "%.3f" % process_time
         # create model
         gbm = xgb(max_depth=3, n_estimators=300, learning_rate=0.01)
+        # gbm = xgb(max_depth=3, n_estimators=300, learning_rate=0.01, max_delta_step=0.1)
         # train model
-        gbm.fit(X_resampled, y_resampled)
+        gbm.fit(X_resampled, y_resampled, eval_metric='auc')
         # evaluate on test set
         precision, recall, f1, gmean, auc_roc, auc_pr, fpr, tpr = evaluate(test_X, test_y, gbm)
         roc_auc = auc(fpr, tpr)
@@ -135,26 +138,26 @@ def oversample(x, y, method):
         return x, y
     elif method == 'random':
         # 随机过采样
-        ros = RandomOverSampler(random_state=randomstate)
+        ros = RandomOverSampler(sampling_strategy=sampling_strategy, random_state=randomstate)
         X_resampled, y_resampled = ros.fit_resample(x, y)
     elif method == 'SMOTE':
         # SMOTE算法
-        X_resampled, y_resampled = SMOTE(random_state=randomstate).fit_resample(x, y)
+        X_resampled, y_resampled = SMOTE(sampling_strategy=sampling_strategy, random_state=randomstate).fit_resample(x, y)
     elif method == 'Sparse SMOTE':
         # Sparse SMOTE算法
-        X_resampled, y_resampled = SparseSMOTE(random_state=randomstate).fit_resample(x, y)
+        X_resampled, y_resampled = SparseSMOTE(sampling_strategy=sampling_strategy, random_state=randomstate).fit_resample(x, y)
     elif method == 'SMOTEBorderline-1':
         # BorderlineSmote算法 borderline-1
-        X_resampled, y_resampled = BorderlineSMOTE(kind='borderline-1', random_state=randomstate).fit_resample(x, y)
+        X_resampled, y_resampled = BorderlineSMOTE(sampling_strategy=sampling_strategy, kind='borderline-1', random_state=randomstate).fit_resample(x, y)
     elif method == 'SMOTEBorderline-2':
         # BorderlineSmote算法 borderline-2
-        X_resampled, y_resampled = BorderlineSMOTE(kind='borderline-2', random_state=randomstate).fit_resample(x, y)
+        X_resampled, y_resampled = BorderlineSMOTE(sampling_strategy=sampling_strategy, kind='borderline-2', random_state=randomstate).fit_resample(x, y)
     elif method == 'SVMSMOTE':
         # SVMSMOTE算法
-        X_resampled, y_resampled = SVMSMOTE(random_state=randomstate).fit_resample(x, y)
+        X_resampled, y_resampled = SVMSMOTE(sampling_strategy=sampling_strategy, random_state=randomstate).fit_resample(x, y)
     elif method == 'ADASYN':
         # ADASYN算法
-        X_resampled, y_resampled = ADASYN(random_state=randomstate).fit_resample(x, y)
+        X_resampled, y_resampled = ADASYN(sampling_strategy=sampling_strategy, random_state=randomstate).fit_resample(x, y)
     elif method == 'mwmote':
         # MWMOTE算法
         X_resampled, y_resampled = MWMOTE.MWMOTE(x, y, N=1000, return_mode='append')
@@ -200,13 +203,13 @@ if __name__ == '__main__':
     # test dataset
     # datasets = ['solar_flare_m0']
     # sparsity ratio >= 0.5
-    # datasets = ["car_eval_34", "coil_2000", 'arrhythmia', 'solar_flare_m0','car_eval_4', 'webpage']
+    datasets = ["car_eval_34", "coil_2000", 'arrhythmia', 'solar_flare_m0','car_eval_4', 'webpage']
 
     # sparsity ratio < 0.5
-    datasets = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
-                'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick',
-                'oil', 'wine_quality', 'letter_img', 'yeast_me2',
-                'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
+    # datasets = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
+    #             'isolet', 'us_crime', 'yeast_ml8', 'scene', 'libras_move', 'thyroid_sick',
+    #             'oil', 'wine_quality', 'letter_img', 'yeast_me2',
+    #             'ozone_level', 'mammography', 'protein_homo', 'abalone_19']
 
     # all
     # datasets = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
@@ -219,9 +222,9 @@ if __name__ == '__main__':
             plt.cla()
         if SHOW_METRICS:
             print(r"\multirow{6}{*}{\textbf{"+dataset+"}}")
-        object = fetch_datasets(data_home='./data/')[dataset]
-        X, y = object.data, object.target
-        time_info = process(X, y)
+        # object = fetch_datasets(data_home='./data/')[dataset]
+        object = np.load('./data/zendo_stable/'+dataset+'.npz')
+        time_info = process(object)
         time_dict[dataset] = time_info
         if SHOW_METRICS:
             print("\hline")
