@@ -23,14 +23,13 @@ import warnings
 import MWMOTE
 from datetime import datetime
 import matplotlib.pyplot as plt
-import random
-# from imblearn import pipeline as pl
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.filterwarnings(action='ignore', category=DeprecationWarning)
 # from analysis import analyze_data_proportion, export_pr_auc
 
 # control block
+# sampling strategy means the minority / majority after the oversample operation.
 sampling_strategy = 0.5
 chunk_size = 1000000
 SHOW_FEATURE = False
@@ -45,17 +44,15 @@ def statistics_sample_num(train_X, train_y, X_resampled, y_resampled, sample_met
     before_minor = train_X[train_y == 1]
     after_major = X_resampled[y_resampled == -1]
     after_minor = X_resampled[y_resampled == 1]
+    after_minority_nonzero_num = len(after_minor[after_minor != 0])
+    after_majority_nonzero_num = len(after_major[after_major != 0])
+    ratio = after_minority_nonzero_num*1.0/after_majority_nonzero_num
     print(sample_method)
     print("before operation major non-zero num:" + str(len(before_major[before_major != 0])))
     print("before operation minor non-zero num:" + str(len(before_minor[before_minor != 0])))
-    print("after operation major non-zero num:" + str(len(after_major[after_major != 0])))
-    print("after operation minor non-zero num:" + str(len(after_minor[after_minor != 0])))
-    print
-
-    print("before operation num:" + str(len(train_y)) + " major:" + str(len(train_y[train_y == -1]))
-          + "minor:" + str(len(train_y[train_y == 1])))
-    print(" after oversample num:" + str(len(y_resampled)) + " major:" + str(len(y_resampled[y_resampled == -1]))
-          + "minor:" + str(len(y_resampled[y_resampled == 1])))
+    print("after operation major non-zero num:" + str(after_majority_nonzero_num))
+    print("after operation minor non-zero num:" + str(after_minority_nonzero_num))
+    print("after operation non-zero ratio(Minority/Majority):" + str(ratio))
     return
 
 
@@ -63,8 +60,9 @@ def statistics_sample_num(train_X, train_y, X_resampled, y_resampled, sample_met
 def process(object):
     train_X, train_y, test_X, test_y = object['train_X'], object['train_y'], object['test_X'], object['test_y']
     # init sample method
-    sample_methods = ['random', 'SMOTE', 'Sparse SMOTE', 'SMOTEBorderline-1', 'SMOTEBorderline-2',
-                      'SVMSMOTE', 'ADASYN', 'No Sample']
+    # sample_methods = ['random', 'SMOTE', 'Sparse SMOTE', 'SMOTEBorderline-1', 'SMOTEBorderline-2',
+    #                   'SVMSMOTE', 'ADASYN', 'No Sample']
+    sample_methods = ['Sparse SMOTE']
     # sample_methods = ['SMOTE']
     # sample_methods = ['random', 'smote', 'adasyn', 'mwmote']
     metrics_dict = {}
@@ -74,7 +72,7 @@ def process(object):
         before_time = datetime.now()
         # over sample
         X_resampled, y_resampled = oversample(train_X, train_y, method=sample_method)
-        # statistics_sample_num(train_X, train_y, X_resampled, y_resampled, sample_method)
+        statistics_sample_num(train_X, train_y, X_resampled, y_resampled, sample_method)
         # after
         over_time = datetime.now()
         process_time = ((over_time - before_time).microseconds) *1.0/(10**6)
@@ -201,9 +199,9 @@ if __name__ == '__main__':
     # names = ['optical_digits']
     # names = ['ecoli', 'optical_digits']
     # test dataset
-    # datasets = ['solar_flare_m0']
+    datasets = ['webpage']
     # sparsity ratio >= 0.5
-    datasets = ["car_eval_34", "coil_2000", 'arrhythmia', 'solar_flare_m0','car_eval_4', 'webpage']
+    # datasets = ["car_eval_34", "coil_2000", 'arrhythmia', 'solar_flare_m0','car_eval_4', 'webpage']
 
     # sparsity ratio < 0.5
     # datasets = ['ecoli', 'optical_digits', 'satimage', 'pen_digits', 'abalone', 'sick_euthyroid', 'spectrometer',
